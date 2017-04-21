@@ -23,11 +23,12 @@ class Handler(webapp2.RequestHandler):
 class Post(db.Model):
     subject = db.StringProperty(required = True)
     content = db.TextProperty(required = True)
-    created = db.DateProperty(auto_now_add = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+    last_modified = db.DateTimeProperty(auto_now = True)
 
 class MainHandler(Handler):
     def get(self):
-        posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC")
+        posts = Post.all().order('-created')
         self.render(index_template, posts = posts)
 
 class NewPostHandler(Handler):
@@ -57,5 +58,6 @@ class PermalinkHandler(Handler):
 
 
 app = webapp2.WSGIApplication([('/blog', MainHandler),
+                               ('/blog/?', MainHandler),
                                ('/blog/newpost', NewPostHandler),
                                ('/blog/(\d+)', PermalinkHandler)], debug = True)
